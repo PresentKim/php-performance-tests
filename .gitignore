@@ -1,0 +1,10 @@
+bin/
+vendor/*
+
+.idea/
+!.idea/codeStyles/
+!.idea/fileTemplates/
+
+Thumbs.db
+Desktop.ini
+.DS_Store
