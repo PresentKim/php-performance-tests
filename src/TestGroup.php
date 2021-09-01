@@ -24,42 +24,114 @@
 declare(strict_types=1);
 
 final class TestGroup{
+    private const CODE = "Code";
+    private const TIME = "Time";
+    private const RATE = "Rate";
+
+    /** @var array<string> */
+    private array $descriptions = [];
+
+    /** @var array<string, string> */
+    private array $infos = [
+        "PHP Version" => PHP_VERSION
+    ];
+
     /** @var array<string, callable> */
     private array $tests = [];
 
     public function __construct(public int $repeatCount = 1){ }
 
-    public function reset(){
+    public function reset(bool $resetDescription = false, bool $resetInfo = false){
         $this->tests = [];
+        if($resetDescription){
+            $this->descriptions = [];
+        }
+        if($resetInfo){
+            $this->infos = [];
+        }
     }
 
     public function addTest(string $name, callable $callable) : void{
         $this->tests[$name] = $callable;
     }
 
-    public function run() : void{
-        $testResults = array_map(fn() => 0, $this->tests);
+    public function addDescriptions(string $descriptions) : void{
+        foreach(explode("\n", str_replace("\r\n", "\n", $descriptions)) as $description){
+            $this->descriptions[] = $description;
+        }
+    }
+
+    public function setInfo(string $name, string $value) : void{
+        $this->infos[$name] = $value;
+    }
+
+    public function getMaxNameLength() : int{
+        return empty($this->tests) ? 0 : max(mb_strlen(self::CODE), ...array_map(fn($v) => mb_strlen($v), array_keys($this->tests)));
+    }
+
+    /** @param array<string, float> $results */
+    public function getMaxTimeLength(array $results) : int{
+        return empty($results) ? 0 : max(mb_strlen(self::TIME), ...array_map(fn(float $result) : int => mb_strlen(sprintf("%2.2fµs", $result)), array_values($results)));
+    }
+
+    public function getMaxDescriptionLength() : int{
+        return empty($this->descriptions) ? 0 : max(0, ...array_map(fn($v) => mb_strlen($v), $this->descriptions));
+    }
+
+    public function getMaxInfoLength() : int{
+        return empty($this->infos) ? 0 : max(0, ...array_map(fn($v) => mb_strlen($v), array_values($this->infos)));
+    }
+
+    public function run(string $name = "") : void{
+        $results = [];
         for($i = 0; $i < $this->repeatCount; ++$i){
-            foreach($this->tests as $name => $test){
+            foreach($this->tests as $testName => $test){
                 $startTime = microtime(true);
                 $test();
                 $endTime = microtime(true);
-                $testResults[$name] += $endTime - $startTime;
+                $results[$testName] ??= 0;
+                $results[$testName] += ($endTime - $startTime) / $this->repeatCount * 1000000;
             }
         }
-        asort($testResults);
+        asort($results);
+        $minTime = min(...array_values($results));
 
-        $maxLength = max(9, ...array_map("strlen", array_keys($this->tests)));
-        $minTime = min(...array_values($testResults));
+        $nameLength = $this->getMaxNameLength();
+        $timeLength = $this->getMaxTimeLength($results);
+        $rateLength = 7; // "000.00%"
+        $fullLength = mb_strlen(sprintf("%-'-{$nameLength}s | %-'-{$timeLength}s | %-'-{$rateLength}s", "", "", ""));
 
-        printf("| %-{$maxLength}s | %-13s | %-9s |\n", "Test Code", "Result time", "Rate");
-        printf("| %-'-{$maxLength}s | %'-13s | %'-9s |\n", "", "", "");
-        foreach($testResults as $name => $result){
-            printf("| %-{$maxLength}s | %02.010fs | %3.4f%% |\n",
-                $name,
+        $descriptionLength = $this->getMaxDescriptionLength();
+        if($fullLength < $descriptionLength){
+            $nameLength += $descriptionLength - $fullLength;
+            $fullLength = $descriptionLength;
+        }
+
+        printf("┌--%-'-{$fullLength}s┐\n", $name);
+        if(!empty($this->descriptions)){
+            foreach($this->descriptions as $description){
+                printf("| %-' {$fullLength}s |\n", $description);
+            }
+        }
+        if(!empty($this->infos)){
+            $infoLength = self::getMaxInfoLength();
+            foreach($this->infos as $infoName => $value){
+                printf("| %+' {$fullLength}s |\n", sprintf("%s : %-' {$infoLength}s", $infoName, $value));
+            }
+        }
+        if(!empty($this->descriptions) || !empty($this->infos)){
+            printf("|-%-'-{$fullLength}s-|\n", "");
+        }
+
+        printf("| %-' {$nameLength}s | %-' {$timeLength}s | %-' {$rateLength}s |\n", self::CODE, self::TIME, self::RATE);
+        printf("|-%-'-{$nameLength}s-|-%-'-{$timeLength}s-|-%-'-{$rateLength}s-|\n", "", "", "");
+        foreach($results as $testName => $result){
+            printf("| %-{$nameLength}s | %2.2fµs | %3.2f%% |\n",
+                $testName,
                 $result,
-                $result / $minTime * 100
+                $result / $minTime * 100,
             );
         }
+        printf("└-%-'-{$fullLength}s-┘\n", "");
     }
 }

@@ -23,41 +23,38 @@
 
 declare(strict_types=1);
 
-require __DIR__ . "\..\TestGroup.php";
+require __DIR__ . "/../TestGroup.php";
+$tests = new TestGroup(10000);
 
-const ARRAY_SIZE = 100000;
-const REPEAT_COUNT = 100;
+const ARRAY_SIZE = 100;
+$tests->addDescriptions('$arr = array_fill(0, ARRAY_SIZE, 255);');
+$tests->setInfo("ARRAY_SIZE", (string) ARRAY_SIZE);
 
-$arr = [];
-for($i = 0; $i < ARRAY_SIZE; ++$i){
-    $arr[] = mt_rand(0, 255);
-}
+$arr = array_fill(0, ARRAY_SIZE, 255);
 
-echo '[Test 01] Simple function mapping' . PHP_EOL;
-$timings = new TestGroup(REPEAT_COUNT);
-$timings->addTest('$newMap = array_map("chr", $arr)', function() use ($arr){
+$tests->addTest('$newMap = array_map("chr", $arr)', function() use ($arr){
     $newMap = array_map("chr", $arr);
 });
 
-$timings->addTest('foreach($arr as $k => $v){$newMap[$k] = chr($v); }', function() use ($arr){
+$tests->addTest('foreach($arr as $k => $v){$newMap[$k] = chr($v); }', function() use ($arr){
     $newMap = [];
     foreach($arr as $k => $v){
         $newMap[$k] = chr($v);
     }
 });
-$timings->run();
+$tests->run("[Test 01 - Simple function mapping]");
+$tests->reset();
 
-echo PHP_EOL . PHP_EOL;
-echo '[Test 02] Complex function mapping' . PHP_EOL;
-$timings->reset();
-$timings->addTest('$newMap = array_map(fn(int $v): string=> chr($v), $arr)', function() use ($arr){
+echo PHP_EOL;
+$tests->addTest('$newMap = array_map(fn(int $v): string=> chr($v), $arr)', function() use ($arr){
     $newMap = array_map(fn(int $v) : string => chr($v), $arr);
 });
 
-$timings->addTest('foreach($arr as $k => $v){$newMap[$k] = chr($v); }', function() use ($arr){
+$tests->addTest('foreach($arr as $k => $v){$newMap[$k] = chr($v); }', function() use ($arr){
     $newMap = [];
     foreach($arr as $k => $v){
         $newMap[$k] = chr($v);
     }
 });
-$timings->run();
+$tests->run("[Test 02 - Complex function mapping]");
+$tests->reset();

@@ -23,9 +23,8 @@
 
 declare(strict_types=1);
 
-require __DIR__ . "\..\TestGroup.php";
-
-const REPEAT_COUNT = 10000000;
+require __DIR__ . "/../TestGroup.php";
+$tests = new TestGroup(100000);
 
 /** @property string $magicProperty */
 class Test{
@@ -33,8 +32,9 @@ class Test{
     private string $_magicProperty = "Use by magic method";
     private string $methodProperty = "Use by getter setter";
 
-    public function get() : string{  return $this->methodProperty; }
-    public function set(string $value) : void{  $this->methodProperty = $value;  }
+    public function get() : string{ return $this->methodProperty; }
+
+    public function set(string $value) : void{ $this->methodProperty = $value; }
 
     public function __get(string $name) : mixed{
         return $name === "magicProperty" ? $this->_magicProperty
@@ -49,16 +49,26 @@ class Test{
         }
     }
 }
-$obj = new Test();
 
-$timings = new TestGroup(REPEAT_COUNT);
-$timings->addTest('$obj->publicProperty = strrev($obj->publicProperty)', function() use($obj){
+$obj = new Test();
+$tests->addDescriptions('$obj = new class(){
+    public string $publicProperty;
+    private string $_magicProperty;
+    private string $methodProperty;
+
+    public function get() : string;        //get $this->methodProperty 
+    public function set(string);           //set $this->methodProperty 
+    public function __get(string) : mixed; //get $this->_magicProperty 
+    public function __set(string, mixed);  //set $this->_magicProperty 
+}');
+
+$tests->addTest('$obj->publicProperty = strrev($obj->publicProperty)', function() use ($obj){
     $obj->publicProperty = strrev($obj->publicProperty);
 });
-$timings->addTest('$obj->set(strrev($obj->get()))', function() use($obj){
+$tests->addTest('$obj->set(strrev($obj->get()))', function() use ($obj){
     $obj->set(strrev($obj->get()));
 });
-$timings->addTest('$obj->magicProperty = strrev($obj->magicProperty);', function() use($obj){
+$tests->addTest('$obj->magicProperty = strrev($obj->magicProperty);', function() use ($obj){
     $obj->magicProperty = strrev($obj->magicProperty);
 });
-$timings->run();
+$tests->run();

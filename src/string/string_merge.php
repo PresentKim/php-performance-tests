@@ -23,25 +23,28 @@
 
 declare(strict_types=1);
 
-require __DIR__ . "\..\TestGroup.php";
+require __DIR__ . "/../TestGroup.php";
+$tests = new TestGroup(100000);
 
-const REPEAT_COUNT = 1000000;
+$str = "783y6th4gf98wejuy5jg29678345yh6tf7q634hjl786dhl9872t3sh;jtshl3f457689hy425dth3421sl7850hgqt0agw";
+$int = mt_rand();
+$float = lcg_value() * 10000000;
+$tests->setInfo('$int', (string) $int);
+$tests->setInfo('$float', (string) $float);
 
-$timings = new TestGroup(REPEAT_COUNT);
-
-$str = "Can also use sprintf instead of variables contained in double quotes, it’s about 10x faster.";
-$int = 124514;
-$float = 2132142142.123214124;
-$timings->addTest('"Print : $str, $int and $float"', function() use ($str, $int, $float){
+$tests->addTest('"Print : $str, $int and $float"', function() use ($str, $int, $float){
     $result = "Print : $str, $int and $float";
 });
-$timings->addTest('"Print : " . $str . ", " . $int . " and " . $float', function() use ($str, $int, $float){
+$tests->addTest('"Print : " . $str . ", " . $int . " and " . $float', function() use ($str, $int, $float){
     $result = "Print : " . $str . ", " . $int . " and " . $float;
 });
-$timings->addTest('\'Print : \' . $str . \', \' . $int . \' and \' . $float', function() use ($str, $int, $float){
+$tests->addTest('\'Print : \' . $str . \', \' . $int . \' and \' . $float', function() use ($str, $int, $float){
     $result = 'Print : ' . $str . ', ' . $int . ' and ' . $float;
 });
-$timings->addTest('sprintf("Print : %s, %s and %s", $str, $int, $float)', function() use ($str, $int, $float){
+$tests->addTest('sprintf("Print : %s, %s and %s", $str, $int, $float)', function() use ($str, $int, $float){
     $result = sprintf("Print : %s, %s and %s", $str, $int, $float);
 });
-$timings->run();
+$tests->addTest('sprintf("Print : %s, %d and %f", $str, $int, $float)', function() use ($str, $int, $float){
+    $result = sprintf("Print : %s, %d and %f", $str, $int, $float);
+});
+$tests->run();
