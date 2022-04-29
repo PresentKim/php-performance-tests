@@ -41,7 +41,7 @@ final class TestGroup{
 
     public function __construct(public int $repeatCount = 1){ }
 
-    public function reset(bool $resetDescription = false, bool $resetInfo = false){
+    public function reset(bool $resetDescription = false, bool $resetInfo = false) : void{
         $this->tests = [];
         if($resetDescription){
             $this->descriptions = [];
@@ -55,8 +55,14 @@ final class TestGroup{
         $this->tests[$name] = $callable;
     }
 
-    public function addDescriptions(string $descriptions) : void{
-        foreach(explode("\n", str_replace("\r\n", "\n", $descriptions)) as $description){
+    /**
+     * @param string|array<string> $descriptions
+     */
+    public function addDescriptions(string|array $descriptions) : void{
+        if(is_string($descriptions)){
+            $descriptions = explode("\n", str_replace("\r\n", "\n", $descriptions));
+        }
+        foreach($descriptions as $description){
             $this->descriptions[] = $description;
         }
     }
@@ -65,21 +71,28 @@ final class TestGroup{
         $this->infos[$name] = $value;
     }
 
-    public function getMaxNameLength() : int{
-        return empty($this->tests) ? 0 : max(mb_strlen(self::CODE), ...array_map(fn($v) => mb_strlen($v), array_keys($this->tests)));
+    /** @internal */
+    private function getMaxNameLength() : int{
+        return empty($this->tests) ? 0 : max(mb_strlen(self::CODE), ...array_map(static fn($v) => mb_strlen($v), array_keys($this->tests)));
     }
 
-    /** @param array<string, float> $results */
-    public function getMaxTimeLength(array $results) : int{
-        return empty($results) ? 0 : max(mb_strlen(self::TIME), ...array_map(fn(float $result) : int => mb_strlen(sprintf("%2.2fµs", $result)), array_values($results)));
+    /**
+     * @param array<string, float> $results
+     *
+     * @internal
+     */
+    private function getMaxTimeLength(array $results) : int{
+        return empty($results) ? 0 : max(mb_strlen(self::TIME), ...array_map(static fn(float $result) : int => mb_strlen(sprintf("%2.2fµs", $result)), array_values($results)));
     }
 
-    public function getMaxDescriptionLength() : int{
-        return empty($this->descriptions) ? 0 : max(0, ...array_map(fn($v) => mb_strlen($v), $this->descriptions));
+    /** @internal */
+    private function getMaxDescriptionLength() : int{
+        return empty($this->descriptions) ? 0 : max(0, ...array_map(static fn($v) => mb_strlen($v), $this->descriptions));
     }
 
-    public function getMaxInfoLength() : int{
-        return empty($this->infos) ? 0 : max(0, ...array_map(fn($v) => mb_strlen($v), array_values($this->infos)));
+    /** @internal */
+    private function getMaxInfoLength() : int{
+        return empty($this->infos) ? 0 : max(0, ...array_map(static fn($v) => mb_strlen($v), array_values($this->infos)));
     }
 
     public function run(string $name = "") : void{
@@ -114,7 +127,7 @@ final class TestGroup{
             }
         }
         if(!empty($this->infos)){
-            $infoLength = self::getMaxInfoLength();
+            $infoLength = $this->getMaxInfoLength();
             foreach($this->infos as $infoName => $value){
                 printf("| %+' {$fullLength}s |\n", sprintf("%s : %-' {$infoLength}s", $infoName, $value));
             }

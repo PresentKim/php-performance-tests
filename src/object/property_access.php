@@ -36,17 +36,26 @@ class Test{
 
     public function set(string $value) : void{ $this->methodProperty = $value; }
 
+    /** @throws ErrorException */
     public function __get(string $name) : mixed{
-        return $name === "magicProperty" ? $this->_magicProperty
-            : throw new ErrorException("Undefined property: Test::\$$name");
+        if($name === "magicProperty"){
+            return $this->_magicProperty;
+        }
+
+        return throw new ErrorException("Undefined property: " . get_class($this) . "::\$$name");
     }
 
+    /** @throws ErrorException */
     public function __set(string $name, mixed $value) : void{
         if($name === "magicProperty"){
             $this->_magicProperty = $value;
         }else{
             throw new ErrorException("Undefined property: Test::\$$name");
         }
+    }
+
+    public function __isset(string $name) : bool{
+        return $name === "magicProperty";
     }
 }
 

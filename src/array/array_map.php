@@ -19,6 +19,10 @@
  *   (\ /)
  *  ( . .) ♥
  *  c(")(")
+ *
+ * @noinspection OnlyWritesOnParameterInspection
+ * @noinspection PhpUnusedLocalVariableInspection
+ * @noinspection PhpArrayUsedOnlyForWriteInspection
  */
 
 declare(strict_types=1);
@@ -47,7 +51,7 @@ $tests->reset();
 
 echo PHP_EOL;
 $tests->addTest('$newMap = array_map(fn(int $v): string=> chr($v), $arr)', function() use ($arr){
-    $newMap = array_map(fn(int $v) : string => chr($v), $arr);
+    $newMap = array_map(static fn(int $v) : string => chr($v), $arr);
 });
 
 $tests->addTest('foreach($arr as $k => $v){$newMap[$k] = chr($v); }', function() use ($arr){

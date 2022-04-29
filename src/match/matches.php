@@ -19,33 +19,40 @@
  *   (\ /)
  *  ( . .) ♥
  *  c(")(")
+ *
+ * @noinspection TypeUnsafeComparisonInspection
+ * @noinspection PhpConditionAlreadyCheckedInspection
+ * @noinspection PhpSwitchCanBeReplacedWithMatchExpressionInspection
+ * @noinspection RedundantElseClauseInspection
  */
 
 declare(strict_types=1);
 
 require __DIR__ . "/../TestGroup.php";
+define("MATCH_TARGET_NUMBER", (int) (lcg_value() * 10));
+
 $tests = new TestGroup(1000000);
 
 $tests->addTest('switch', function(){
-    switch(11){
+    switch(MATCH_TARGET_NUMBER){
         case 0 :
             return "Hel";
         case 1:
         case 2:
-        case 3 :
+        case 3:
             return "lo,";
         case 5:
-        case 6 :
+        case 6:
             return " wo";
         case 9:
-        case  10 :
+        case 10:
             return "rld";
         default :
             return "!";
     }
 });
 $tests->addTest('match', function(){
-    return match (11) {
+    return match (MATCH_TARGET_NUMBER) {
         0 => "Hel",
         1, 2, 3 => "lo,",
         5, 6 => " wo",
@@ -54,7 +61,7 @@ $tests->addTest('match', function(){
     };
 });
 $tests->addTest('==', function(){
-    $rand = 11;
+    $rand = MATCH_TARGET_NUMBER;
     if($rand == 0){
         return "Hel";
     }elseif($rand == 1 || $rand == 2 || $rand == 3){
@@ -68,7 +75,7 @@ $tests->addTest('==', function(){
     }
 });
 $tests->addTest('===', function(){
-    $rand = mt_rand(0, 10);
+    $rand = MATCH_TARGET_NUMBER;
     if($rand === 0){
         return "Hel";
     }elseif($rand === 1 || $rand === 2 || $rand === 3){
