@@ -2,9 +2,9 @@ name: Export JSON files
 
 on:
   push:
-    branches: [ master ]
+    branches: [ ci/automatic_tests ]
   pull_request:
-    branches: [ master ]
+    branches: [ ci/automatic_tests ]
 
 jobs:
   build:
