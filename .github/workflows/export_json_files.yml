@@ -20,7 +20,7 @@ jobs:
           coverage: none
           ini-values: opcache.enable_cli=1, opcache.jit=off, opcache.jit_buffer_size=128M
       - name: Run IntegrationTesting
-        run: php src/IntegrationTesting.php > result_no_jit.json
+        run: php src/IntegrationTesting.php --print console --exports result_no_jit.json
 
       - name: Setup PHP Action with JIT
         uses: shivammathur/setup-php@2.18.1
@@ -30,10 +30,10 @@ jobs:
           coverage: none
           ini-values: opcache.enable_cli=1, opcache.jit=1205, opcache.jit_buffer_size=128M
       - name: Run IntegrationTesting
-        run: php src/IntegrationTesting.php > result_on_jit.json
+        run: php src/IntegrationTesting.php --print console --exports result_on_jit.json
 
       - name: Setup PHP Action with JIT
         uses: actions/upload-artifact@v3
         with:
-          name: results.zip
+          name: results
           path: result_*_jit.json

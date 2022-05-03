@@ -41,8 +41,15 @@ foreach(scandir($testRootDir) as $testsDirFile){
     }
 }
 
+$exports = getopt("", ["exports:"])["exports"] ?? "";
+if(empty($exports)){
+    echo "Integration Testing Complete.\n";
+    exit(0);
+}
+
 try{
-    echo json_encode($results, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    file_put_contents($exports, json_encode($results, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    echo "Results exported to $exports.\n";
 }catch(JsonException $e){
     echo $e->getMessage() . PHP_EOL;
 }
