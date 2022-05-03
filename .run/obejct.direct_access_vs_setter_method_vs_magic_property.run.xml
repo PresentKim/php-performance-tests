@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="array_map_test" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="php src\array\array_map.php --live" />
+  <configuration default="false" name="direct_access_vs_setter_method_vs_magic_property" type="ShConfigurationType" folderName="object">
+    <option name="SCRIPT_TEXT" value="php src\tests\object\direct_access_vs_setter_method_vs_magic_property\index.php --live" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="string_merge_test" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="php src\string\string_merge.php --live" />
+  <configuration default="false" name="switch_vs_match_vs_if" type="ShConfigurationType" folderName="logic">
+    <option name="SCRIPT_TEXT" value="php src\tests\logic\switch_vs_match_vs_if\index.php --live" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />
