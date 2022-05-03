@@ -12,24 +12,28 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup PHP Action
+      - name: Setup PHP Action without JIT
         uses: shivammathur/setup-php@2.18.1
         with:
           php-version: '8.1'
           extensions: mbstring
           coverage: none
           ini-values: opcache.enable_cli=1, opcache.jit=off, opcache.jit_buffer_size=128M
+      - name: Run IntegrationTesting
+        run: php src/IntegrationTesting.php > result_no_jit.json
 
-      - name: Run IntegrationTesting.php
-        run: php src/tests/array/foreach_vs_array_map/index.php --print console
-
-      - name: Setup PHP Action
+      - name: Setup PHP Action with JIT
         uses: shivammathur/setup-php@2.18.1
         with:
           php-version: '8.1'
           extensions: mbstring
           coverage: none
           ini-values: opcache.enable_cli=1, opcache.jit=1205, opcache.jit_buffer_size=128M
+      - name: Run IntegrationTesting
+        run: php src/IntegrationTesting.php > result_on_jit.json
 
-      - name: Run IntegrationTesting.php
-        run: php src/tests/array/foreach_vs_array_map/index.php --print console
+      - name: Setup PHP Action with JIT
+        uses: actions/upload-artifact@v3
+        with:
+          name: results.zip
+          path: result_*_jit.json
