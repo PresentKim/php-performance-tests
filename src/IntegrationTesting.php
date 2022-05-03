@@ -41,7 +41,7 @@ foreach(scandir($testRootDir) as $testsDirFile){
     }
 }
 
-$exports = (string) (getopt("", ["exports:"])["exports"] ?? "");
+$exports = (string) (getopt("", ["exports:", "print:"])["exports"] ?? "");
 if(empty($exports)){
     echo "Integration Testing Complete.\n";
     exit(0);
