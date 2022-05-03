@@ -23,6 +23,10 @@
 
 declare(strict_types=1);
 
+echo "Integration Testing...\n";
+echo "PHP Version: " . PHP_VERSION . "\n";
+echo "PHP opcache.jit enabled: " . (ini_get("opcache.jit") ?? "false") . "\n";
+
 $results = [];
 $testRootDir = __DIR__ . "/tests";
 foreach(scandir($testRootDir) as $testsDirFile){

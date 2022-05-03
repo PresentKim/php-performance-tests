@@ -9,13 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - php-jit: 'off'
-            exports: 'no-jit.json'
-          - php-jit: '1205'
-            exports: 'jit.json'
     steps:
       - uses: actions/checkout@v2
 
@@ -25,7 +18,18 @@ jobs:
           php-version: '8.1'
           extensions: mbstring
           coverage: none
-          ini-values: opcache.enable_cli=1, opcache.jit=${{ matrix.php-jit }}, opcache.jit_buffer_size=128M
+          ini-values: opcache.enable_cli=1, opcache.jit=off, opcache.jit_buffer_size=128M
 
       - name: Run IntegrationTesting.php
-        run: php src/IntegrationTesting.php --print console
+        run: php src/tests/array/foreach_vs_array_map/index.php --print console
+
+      - name: Setup PHP Action
+        uses: shivammathur/setup-php@2.18.1
+        with:
+          php-version: '8.1'
+          extensions: mbstring
+          coverage: none
+          ini-values: opcache.enable_cli=1, opcache.jit=1205, opcache.jit_buffer_size=128M
+
+      - name: Run IntegrationTesting.php
+        run: php src/tests/array/foreach_vs_array_map/index.php --print console
