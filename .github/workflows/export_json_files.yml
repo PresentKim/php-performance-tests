@@ -28,4 +28,4 @@ jobs:
           ini-values: opcache.enable_cli=1, opcache.jit=${{ matrix.php-jit }}, opcache.jit_buffer_size=128M
 
       - name: Run IntegrationTesting.php
-        run: php src\IntegrationTesting.php --print console
+        run: php src/IntegrationTesting.php --print console
