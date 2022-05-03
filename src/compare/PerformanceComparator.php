@@ -100,7 +100,7 @@ final class PerformanceComparator{
         return $this->tests;
     }
 
-    public function run() : void{
+    public function run() : array{
         /** @var array<CompareResult> $results */
         $results = [];
         $min = PHP_INT_MAX;
@@ -120,24 +120,71 @@ final class PerformanceComparator{
             $result->percentage = $result->totalTime / $min * 100;
         }
 
-        $this->exportMarkDown($results);
+        $printMode = (string) (getopt("", ["print:"])["print"] ?? "");
+        echo match (strtolower($printMode)) {
+            "markdown" => $this->printToMarkDown($results),
+            "console" => $this->printToConsole($results),
+            default => ""
+        };
+        return [
+            "name" => $this->name,
+            "repeatCount" => $this->repeatCount,
+            "descriptions" => $this->descriptions,
+            "results" => $results,
+        ];
     }
 
     /** @param array<CompareResult> $results */
-    private function exportMarkDown(array $results) : void{
-        echo "## $this->name\n";
+    private function printToConsole(array $results) : string{
+        $nameLength = empty($this->tests) ? 0 : max(mb_strlen(self::DESCRIPTION), ...array_map(static fn($v) => mb_strlen($v), array_keys($this->tests)));
+        $timeLength = empty($results) ? 0 : max(mb_strlen(self::TOTAL_TIME), ...array_map(static fn(CompareResult $result) : int => mb_strlen(sprintf("%2.2fµs", $result->totalTime)), array_values($results)));
+        $percentLength = mb_strlen(self::PERCENTAGE);
+        $fullLength = mb_strlen(sprintf("%-'-{$nameLength}s | %-'-{$timeLength}s | %-'-{$percentLength}s", "", "", ""));
+
+        $descriptionLength = empty($this->descriptions) ? 0 : max(0, ...array_map(static fn($v) => mb_strlen($v), $this->descriptions));
+        if($fullLength < $descriptionLength){
+            $nameLength += $descriptionLength - $fullLength;
+            $fullLength = $descriptionLength;
+        }
+
+        $buffer = sprintf("┌--%-'-{$fullLength}s┐\n", $this->name);
+        if(!empty($this->descriptions)){
+            foreach($this->descriptions as $description){
+                $buffer .= sprintf("| %-' {$fullLength}s |\n", $description);
+            }
+            $buffer .= sprintf("|-%-'-{$fullLength}s-|\n", "");
+        }
+
+        $buffer .= sprintf("| %-' {$nameLength}s | %-' {$timeLength}s | %-' {$percentLength}s |\n", self::DESCRIPTION, self::TOTAL_TIME, self::PERCENTAGE);
+        $buffer .= sprintf("|-%-'-{$nameLength}s-|-%-'-{$timeLength}s-|-%-'-{$percentLength}s-|\n", "", "", "");
+        foreach($results as $result){
+            $buffer .= sprintf("| %-{$nameLength}s | %" . ($timeLength - 2) . ".2fµs |%$percentLength.2f%% |\n",
+                $result->name,
+                $result->totalTime,
+                $result->percentage,
+            );
+        }
+        $buffer .= sprintf("└-%-'-{$fullLength}s-┘\n", "");
+
+        return $buffer;
+    }
+
+    /** @param array<CompareResult> $results */
+    private function printToMarkDown(array $results) : string{
+        $buffer = "## $this->name\n";
 
         foreach($this->descriptions as $description){
-            echo "> $description\n";
+            $buffer .= "> $description\n";
         }
-        echo "> Call {$this->repeatCount}x times to be comparable\n";
+        $buffer .= "> Call {$this->repeatCount}x times to be comparable\n";
 
-        echo PHP_EOL;
-        printf("| %s | %s | %s |\n", self::DESCRIPTION, self::TOTAL_TIME, self::PERCENTAGE);
-        printf("|-%s-|-%s-|-%s-|\n", "", "", "");
+        $buffer .= PHP_EOL;
+        $buffer .= sprintf("| %s | %s | %s |\n", self::DESCRIPTION, self::TOTAL_TIME, self::PERCENTAGE);
+        $buffer .= sprintf("|-%s-|-%s-|-%s-|\n", "", "", "");
         foreach($results as $result){
-            printf("| %s | %2.2fµs | %3.2f%% |\n", $result->name, $result->totalTime, $result->percentage);
+            $buffer .= sprintf("| %s | %2.2fµs | %3.2f%% |\n", $result->name, $result->totalTime, $result->percentage);
         }
+        return $buffer;
     }
 
     /**
@@ -155,7 +202,7 @@ final class PerformanceComparator{
         array $descriptions = [],
         int $repeatCount = self::DEFAULT_REPEAT_COUNT,
         array $arguments = []
-    ) : void{
+    ) : array{
         $comparator = new self($name);
         for($i = 1; ; ++$i){
             $path = "$baseDir/test$i.php";
@@ -169,6 +216,6 @@ final class PerformanceComparator{
         $comparator->setRepeatCount($repeatCount);
         $comparator->addDescriptions(...$descriptions);
         $comparator->addArguments(...$arguments);
-        $comparator->run();
+        return $comparator->run();
     }
 }

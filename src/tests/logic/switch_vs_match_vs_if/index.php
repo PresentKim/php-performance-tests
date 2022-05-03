@@ -31,10 +31,9 @@ declare(strict_types=1);
 require_once __DIR__ . "/../../../compare/PerformanceComparator.php";
 define("MATCH_TARGET_NUMBER", (int) (lcg_value() * 10));
 
-PerformanceComparator::compareFromBaseDir(
+return PerformanceComparator::compareFromBaseDir(
     name: "switch vs match vs if",
     baseDir: __DIR__,
-    descriptions: ["Select a random number from 0 to 9 (current: " . MATCH_TARGET_NUMBER . ")"],
     repeatCount: 100000,
     arguments: [MATCH_TARGET_NUMBER]
 );

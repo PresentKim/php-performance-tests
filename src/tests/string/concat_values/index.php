@@ -31,7 +31,7 @@ $str = "783y6th4gf98wejuy5jg29678345yh6tf7q634hjl786dhl9872t3sh;jtshl3f457689hy4
 $int = mt_rand();
 $float = lcg_value() * 10000000;
 
-PerformanceComparator::compareFromBaseDir(
+return PerformanceComparator::compareFromBaseDir(
     name: "print values methods",
     baseDir: __DIR__,
     repeatCount: 100000,

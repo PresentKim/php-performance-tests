@@ -49,7 +49,7 @@ class Data{
     }
 }
 
-PerformanceComparator::compareFromBaseDir(
+return PerformanceComparator::compareFromBaseDir(
     name: "Direct access vs Setter method vs Magic property",
     baseDir: __DIR__,
     descriptions: ["Given object has public property(\$public), private property(\$private), magic property(\$magic)"],

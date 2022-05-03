@@ -32,7 +32,7 @@ require_once __DIR__ . "/../../../compare/PerformanceComparator.php";
 const ARRAY_SIZE = 100;
 $arr = array_fill(0, ARRAY_SIZE, str_repeat('_', 10000));
 
-PerformanceComparator::compareFromBaseDir(
+return PerformanceComparator::compareFromBaseDir(
     name: "foreach vs array_map()",
     baseDir: __DIR__,
     descriptions: ['Given again is a Hash array with ' . ARRAY_SIZE . ' elements and 10k data per entry.'],

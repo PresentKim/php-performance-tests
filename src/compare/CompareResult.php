@@ -23,11 +23,19 @@
 
 declare(strict_types=1);
 
-final class CompareResult{
+final class CompareResult implements JsonSerializable{
     public function __construct(
         public string $name,
         public float $totalTime,
         public float $percentage
     ){
+    }
+
+    public function jsonSerialize() : array{
+        return [
+            "name" => $this->name,
+            "totalTime" => $this->totalTime,
+            "percentage" => $this->percentage
+        ];
     }
 }
